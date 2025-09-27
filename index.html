@@ -1,37 +1,217 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+
+<html lang="tr">
 <head>
-  <title>Kuş Birleştirme</title>
-  <style>
-    body { text-align:center; font-family:sans-serif; }
-    .kare {
-      width: 80px; height: 80px; 
-      display:inline-flex; 
-      justify-content:center; 
-      align-items:center; 
-      border:1px solid #333; 
-      font-size:40px;
-      margin:5px;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kuş Evrim 2048</title>
+<style>
+  :root{--bg:#faf8ef;--board:#bbada0;--cell:#cdc1b4;--tile-bg:#eee4da}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#333}
+  .wrap{max-width:520px;margin:18px auto;padding:12px}
+  header{display:flex;justify-content:space-between;align-items:center}
+  h1{font-size:20px;margin:0}
+  .controls{display:flex;gap:8px;align-items:center}
+  button{background:#8f7a66;border:none;padding:8px 12px;color:#fff;border-radius:6px;font-weight:600}
+  .board{margin-top:12px;background:var(--board);padding:12px;border-radius:8px;display:grid;grid-template-columns:repeat(4,1fr);grid-gap:12px}
+  .cell{background:var(--cell);height:76px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .tile{position:relative}
+  .status{margin-top:12px;display:flex;justify-content:space-between;align-items:center}
+  .score{background:#eee;padding:8px 10px;border-radius:6px;font-weight:700}
+  @media (max-width:420px){.cell{height:64px;font-size:28px}} 
+</style>
 </head>
 <body>
-  <h1>Kuş Birleştirme</h1>
-  <div id="oyun">
-    <div class="kare" onclick="birles(this)">🐦</div>
-    <div class="kare" onclick="birles(this)">🐦</div>
+<div class="wrap">
+  <header>
+    <h1>Kuş Evrim</h1>
+    <div class="controls">
+      <div class="score" id="score">Puan: 0</div>
+      <button id="new">Yeni Oyun</button>
+    </div>
+  </header>  <div class="board" id="board">
+    <!-- 16 hücre burada JS ile doldurulacak -->
+  </div>  <div class="status">
+    <div>Kurallar: Aynı seviyedeki iki kuş birleşir ve bir üst seviyeye dönüşür. Hareket: kaydır (swipe) veya ok tuşları.</div>
+    <div id="best" style="font-size:13px;color:#666"></div>
   </div>
+</div><script>
+// Basit 2048 mantığı (değerler güvertenin seviyelerini temsil eder)
+const EMOJI = {
+  0: "",
+  1: "🐦", // Muhabbet / başlangıç
+  2: "🐤", // Serçe
+  4: "🕊️", // Güvercin
+  8: "🪶", // Karga gibi (ikon)
+  16: "🐔" // Tavuk (üst seviye)
+};
 
-  <script>
-    function birles(el) {
-      let diger = document.querySelectorAll(".kare");
-      if (diger[0].innerText === diger[1].innerText) {
-        if (diger[0].innerText === "🐦") {
-          diger[0].innerText = "🐤"; // Serçe
-          diger[1].innerText = "";   // Boş
+let grid = [];
+let score = 0;
+const SIZE = 4;
+const boardEl = document.getElementById('board');
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+
+function init() {
+  grid = Array(SIZE).fill(null).map(()=>Array(SIZE).fill(0));
+  for(let i=0;i<SIZE*SIZE;i++){ createCell(i); }
+  score = 0; updateScore();
+  addRandom(); addRandom();
+  render();
+}
+
+function createCell(idx){
+  const div = document.createElement('div');
+  div.className = 'cell';
+  div.id = 'c'+idx;
+  div.innerText = '';
+  boardEl.appendChild(div);
+}
+
+function render(){
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const val = grid[r][c];
+      const idx = r*SIZE + c;
+      const el = document.getElementById('c'+idx);
+      el.innerText = EMOJI[val] || '';
+      el.style.fontSize = val? '' : '';
+      el.style.background = val? '#f9f6f2' : '';
+    }
+  }
+  updateScore();
+}
+
+function updateScore(){
+  scoreEl.innerText = 'Puan: ' + score;
+  const best = localStorage.getItem('kuş_best')||0;
+  bestEl.innerText = 'En İyi: ' + best;
+}
+
+function addRandom(){
+  const empties = [];
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(grid[r][c]===0) empties.push([r,c]);
+  if(empties.length===0) return false;
+  const [r,c] = empties[Math.floor(Math.random()*empties.length)];
+  // Başlangıçta sadece en düşük seviye (1) eklenir. (Bazen 2 eklemek istersen değiştir)
+  grid[r][c] = 1;
+  return true;
+}
+
+function move(direction){
+  // direction: 'left','right','up','down'
+  let moved = false;
+  let mergedThisMove = Array(SIZE).fill().map(()=>Array(SIZE).fill(false));
+  function traverse(range, get){
+    for(const pos of range){
+      const [r,c] = get(pos);
+      if(grid[r][c]===0) continue;
+      let nr=r, nc=c;
+      while(true){
+        const tr = nr + (direction==='down'?1: direction==='up'?-1:0);
+        const tc = nc + (direction==='right'?1: direction==='left'?-1:0);
+        if(tr<0||tr>=SIZE||tc<0||tc>=SIZE) break;
+        if(grid[tr][tc]===0){ nr=tr; nc=tc; continue; }
+        // same value and not merged yet
+        if(grid[tr][tc]===grid[nr][nc] && !mergedThisMove[tr][tc] && !mergedThisMove[nr][nc]){
+          // merge
+          grid[tr][tc] = grid[tr][tc]*2;
+          grid[nr][nc] = 0;
+          mergedThisMove[tr][tc] = true;
+          score += grid[tr][tc];
+          moved = true;
         }
+        break;
+      }
+      if(nr!==r || nc!==c){
+        if(grid[nr][nc]===0){ grid[nr][nc] = grid[r][c]; grid[r][c]=0; moved=true; }
       }
     }
-  </script>
-</body>
+  }
+
+  // We will handle moves by scanning in right orders depending on dir
+  if(direction==='left'){
+    for(let r=0;r<SIZE;r++){
+      const range = Array.from({length:SIZE},(_,i)=>i);
+      traverse(range, (i)=>[r,i]);
+    }
+  } else if(direction==='right'){
+    for(let r=0;r<SIZE;r++){
+      const range = Array.from({length:SIZE},(_,i)=>SIZE-1-i);
+      traverse(range, (i)=>[r,i]);
+    }
+  } else if(direction==='up'){
+    for(let c=0;c<SIZE;c++){
+      const range = Array.from({length:SIZE},(_,i)=>i);
+      traverse(range, (i)=>[i,c]);
+    }
+  } else if(direction==='down'){
+    for(let c=0;c<SIZE;c++){
+      const range = Array.from({length:SIZE},(_,i)=>SIZE-1-i);
+      traverse(range, (i)=>[i,c]);
+    }
+  }
+
+  if(moved){
+    addRandom();
+    render();
+    checkGameOver();
+    const best = Math.max(score, +(localStorage.getItem('kuş_best')||0));
+    localStorage.setItem('kuş_best', best);
+  }
+}
+
+function checkGameOver(){
+  // Eğer boş hücre varsa oyun devam eder
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++) if(grid[r][c]===0) return false;
+  // komşuları kontrol et
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const v = grid[r][c];
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    for(const [dr,dc] of dirs){
+      const nr=r+dr, nc=c+dc;
+      if(nr<0||nc<0||nr>=SIZE||nc>=SIZE) continue;
+      if(grid[nr][nc]===v) return false;
+    }
+  }
+  setTimeout(()=>alert('Oyun bitti! Puan: '+score),10);
+  return true;
+}
+
+// Klavye kontrolleri
+window.addEventListener('keydown', e=>{
+  if(e.key.includes('Arrow')){
+    e.preventDefault();
+    const map = {ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};
+    move(map[e.key]);
+  }
+});
+
+// Dokunma / swipe kontrolleri (mobil için)
+let touchStartX=0, touchStartY=0;
+window.addEventListener('touchstart', e=>{
+  const t = e.changedTouches[0]; touchStartX = t.clientX; touchStartY = t.clientY;
+});
+window.addEventListener('touchend', e=>{
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStartX; const dy = t.clientY - touchStartY;
+  if(Math.abs(dx)<30 && Math.abs(dy)<30) return; // küçük hareketleri yok say
+  if(Math.abs(dx)>Math.abs(dy)){
+    if(dx>0) move('right'); else move('left');
+  } else {
+    if(dy>0) move('down'); else move('up');
+  }
+});
+
+// Yeni oyun butonu
+document.getElementById('new').addEventListener('click', ()=>{
+  // board'ı temizle
+  boardEl.innerHTML = '';
+  init();
+});
+
+// Başlat
+init();
+</script></body>
 </html>
