@@ -1,0 +1,232 @@
+/* ==========================================================================
+   1. RESET & GENEL AYARLAR
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+  padding-bottom: 30px;
+}
+
+/* ==========================================================================
+   2. ÜST BİLGİ ALANLARI (BAŞLIK, SKOR & BÖLÜM)
+   ========================================================================== */
+h1 {
+  text-align: center;
+  font-size: 24px;
+  padding: 12px;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  letter-spacing: 2px;
+}
+
+.level-indicator {
+  text-align: center;
+  font-size: 13px;
+  color: #87ceeb;
+  margin-bottom: 4px;
+}
+
+.score-bar {
+  text-align: center;
+  font-size: 13px;
+  color: #ffd700;
+  margin-bottom: 4px;
+}
+
+.moves-left {
+  color: #87ceeb;
+}
+
+/* ==========================================================================
+   3. KONTROLLER & BUTONLAR
+   ========================================================================== */
+.controls {
+  text-align: center;
+  margin: 8px 0 4px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 7px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn.primary {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: #ffd700;
+  color: #ffd700;
+}
+
+/* ==========================================================================
+   4. KARGA (MASKOT) & KONUŞMA BALONU
+   ========================================================================== */
+.crow-container {
+  text-align: center;
+  position: relative;
+  height: 72px;
+  width: 200px;
+  margin: 6px auto 4px;
+}
+
+.crow-svg {
+  transition: transform 0.3s;
+}
+
+.crow-svg.happy {
+  animation: crowBob 0.5s ease infinite alternate;
+}
+
+@keyframes crowBob {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-6px); }
+}
+
+.speech-bubble {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: #fff;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ==========================================================================
+   5. OYUN ALANI & TÜPLER
+   ========================================================================== */
+.game-area {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 10px 12px 0;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.tube-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tube-label {
+  font-size: 11px;
+  color: #ccc;
+  text-align: center;
+  height: 14px;
+}
+
+.tube-cap {
+  width: 54px;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px 6px 0 0;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-bottom: none;
+}
+
+.tube-outer {
+  width: 48px;
+  height: 180px;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top: none;
+  border-radius: 0 0 26px 26px;
+  background: rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.15s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.tube-outer:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  transform: translateY(-4px);
+}
+
+.tube-outer.selected {
+  border-color: #ffd700;
+  transform: translateY(-10px);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+/* ==========================================================================
+   6. EFEKTLER & EKRAN ÜSTÜ BİLDİRİMLER (OVERLAYS)
+   ========================================================================== */
+.hint-glow {
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+.win-overlay, 
+.lose-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.win-overlay.show, 
+.lose-overlay.show {
+  display: flex;
+}
+
+.overlay-box {
+  background: #1a1a2e;
+  border: 2px solid #ffd700;
+  border-radius: 20px;
+  padding: 28px 40px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+}
+
+.overlay-box h2 {
+  font-size: 28px;
+  color: #ffd700;
+  margin-bottom: 8px;
+}
+
+.overlay-box p {
+  color: #ccc;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.stars {
+  font-size: 32px;
+  letter-spacing: 6px;
+  margin-bottom: 6px;
+}
