@@ -1,6 +1,4 @@
-/* ==========================================================================
-   1. RESET & GENEL AYARLAR
-   ========================================================================== */
+/* ==================== RESET & GENEL AYARLAR ==================== */
 * {
   margin: 0;
   padding: 0;
@@ -8,17 +6,14 @@
 }
 
 body {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #1a1a2e, #16213e 50%, #0f3460);
   min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
   color: #fff;
-  overflow-x: hidden;
   padding-bottom: 30px;
 }
 
-/* ==========================================================================
-   2. ÜST BİLGİ ALANLARI (BAŞLIK, SKOR & BÖLÜM)
-   ========================================================================== */
+/* ==================== ÜST BİLGİ ALANLARI ==================== */
 h1 {
   text-align: center;
   font-size: 24px;
@@ -46,9 +41,7 @@ h1 {
   color: #87ceeb;
 }
 
-/* ==========================================================================
-   3. KONTROLLER & BUTONLAR
-   ========================================================================== */
+/* ==================== KONTROLLER & BUTONLAR ==================== */
 .controls {
   text-align: center;
   margin: 8px 0 4px;
@@ -57,8 +50,6 @@ h1 {
   gap: 10px;
   flex-wrap: wrap;
 }
-
-.btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   color: #fff;
@@ -66,7 +57,7 @@ h1 {
   border-radius: 20px;
   cursor: pointer;
   font-size: 12px;
-  transition: all 0.2s;
+  transition: 0.2s;
 }
 
 .btn:hover {
@@ -79,9 +70,7 @@ h1 {
   color: #ffd700;
 }
 
-/* ==========================================================================
-   4. KARGA (MASKOT) & KONUŞMA BALONU
-   ========================================================================== */
+/* ==================== KARGA MASKOT ==================== */
 .crow-container {
   text-align: center;
   position: relative;
@@ -117,9 +106,7 @@ h1 {
   backdrop-filter: blur(4px);
 }
 
-/* ==========================================================================
-   5. OYUN ALANI & TÜPLER
-   ========================================================================== */
+/* ==================== OYUN ALANI & TÜPLER ==================== */
 .game-area {
   display: flex;
   flex-wrap: wrap;
@@ -180,9 +167,7 @@ h1 {
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
 }
 
-/* ==========================================================================
-   6. EFEKTLER & EKRAN ÜSTÜ BİLDİRİMLER (OVERLAYS)
-   ========================================================================== */
+/* ==================== EFEKTLER & OVERLAYLAR ==================== */
 .hint-glow {
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
 }
@@ -231,18 +216,13 @@ h1 {
   margin-bottom: 6px;
 }
 
-/* ==========================================================================
-   7. YENİ: TÜP SALLANMA ANİMASYONLARI
-   ========================================================================== */
-
-/* Sallanma efektini tetikleyecek CSS sınıfı */
+/* ==================== TÜPLE SALLANMA ANİMASYONU ==================== */
 .tube-outer.shake {
-  animation: tubeShake 0.4s ease-in-out;
+  animation: tubeShake 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Sağa sola sallanma animasyonu */
 @keyframes tubeShake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-6px) rotate(-3deg); }
-  40%, 80% { transform: translateX(6px) rotate(3deg); }
+  0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) translateY(-2px) rotate(-2deg); }
+  20%, 40%, 60%, 80% { transform: translateX(5px) translateY(2px) rotate(2deg); }
 }
