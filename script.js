@@ -130,8 +130,16 @@ function pour(from, to) {
 }
 
 function selectTube(idx) {
+  const els = document.querySelectorAll('.tube-outer');
+  const currentTubeEl = els[idx];
+
   if (state.selected === -1) {
-    if (state.tubes[idx].length === 0) return;
+    if (state.tubes[idx].length === 0) {
+      // Boş tüpe dokunulursa hafifçe sallansın
+      currentTubeEl.classList.add('shake');
+      setTimeout(() => currentTubeEl.classList.remove('shake'), 400);
+      return;
+    }
     state.selected = idx; 
     speak(SPEECHES.select);
   } else {
@@ -141,7 +149,19 @@ function selectTube(idx) {
       pour(state.selected, idx); 
       state.selected = -1; 
     } else {
+      // Hatalı hamle! Seçili olan tüpü ve hedef tüpü sallatıyoruz
       speak(SPEECHES.fail);
+      
+      const prevTubeEl = els[state.selected];
+      if (prevTubeEl) prevTubeEl.classList.add('shake');
+      currentTubeEl.classList.add('shake');
+      
+      // Animasyon bitince sınıfları temizle
+      setTimeout(() => {
+        if (prevTubeEl) prevTubeEl.classList.remove('shake');
+        currentTubeEl.classList.remove('shake');
+      }, 400);
+
       state.selected = (state.tubes[idx].length > 0) ? idx : -1;
     }
   }
