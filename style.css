@@ -230,3 +230,19 @@ h1 {
   letter-spacing: 6px;
   margin-bottom: 6px;
 }
+
+/* ==========================================================================
+   7. YENİ: TÜP SALLANMA ANİMASYONLARI
+   ========================================================================== */
+
+/* Sallanma efektini tetikleyecek CSS sınıfı */
+.tube-outer.shake {
+  animation: tubeShake 0.4s ease-in-out;
+}
+
+/* Sağa sola sallanma animasyonu */
+@keyframes tubeShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px) rotate(-3deg); }
+  40%, 80% { transform: translateX(6px) rotate(3deg); }
+}
