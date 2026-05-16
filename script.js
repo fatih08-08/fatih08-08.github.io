@@ -133,11 +133,15 @@ function selectTube(idx) {
   const els = document.querySelectorAll('.tube-outer');
   const currentTubeEl = els[idx];
 
+  // HANGİ TÜP OLURSA OLSUN SEÇİLDİĞİNDE SALLANSIN
+  if (currentTubeEl) {
+    currentTubeEl.classList.add('shake');
+    setTimeout(() => currentTubeEl.classList.remove('shake'), 400);
+  }
+
   if (state.selected === -1) {
     if (state.tubes[idx].length === 0) {
-      // Boş tüpe dokunulursa hafifçe sallansın
-      currentTubeEl.classList.add('shake');
-      setTimeout(() => currentTubeEl.classList.remove('shake'), 400);
+      // Boş tüpe dokunulursa zaten yukarıda sallandı, sadece işlemi sonlandırıyoruz
       return;
     }
     state.selected = idx; 
@@ -149,19 +153,8 @@ function selectTube(idx) {
       pour(state.selected, idx); 
       state.selected = -1; 
     } else {
-      // Hatalı hamle! Seçili olan tüpü ve hedef tüpü sallatıyoruz
+      // Hatalı hamle durumunda ses ve konuşma çalışsın (sallanma efekti zaten başta tetiklendi)
       speak(SPEECHES.fail);
-      
-      const prevTubeEl = els[state.selected];
-      if (prevTubeEl) prevTubeEl.classList.add('shake');
-      currentTubeEl.classList.add('shake');
-      
-      // Animasyon bitince sınıfları temizle
-      setTimeout(() => {
-        if (prevTubeEl) prevTubeEl.classList.remove('shake');
-        currentTubeEl.classList.remove('shake');
-      }, 400);
-
       state.selected = (state.tubes[idx].length > 0) ? idx : -1;
     }
   }
