@@ -1,4 +1,6 @@
-// ==================== SABİTLER VE YAPILANDIRMALAR ====================
+// ==========================================================================
+// 1. SABİTLER VE YAPILANDIRMALAR
+// ==========================================================================
 const COLORS = [
   { name: 'Kırmızı',  hex: '#e74c3c', light: '#ff6b6b' },
   { name: 'Mavi',     hex: '#3498db', light: '#74b9ff' },
@@ -26,28 +28,34 @@ const LEVEL_CONFIG = [
   { tubes: 8, colors: 6, empty: 2, maxHeight: 4 },
 ];
 
-let state = {
-  tubes: [],
-  selected: -1,
-  level: 0,
-  score: 0,
-  moves: 0,
-  history: [],
-  maxH: 4
+// Oyun Durumu (State)
+let state = { 
+  tubes: [], 
+  selected: -1, 
+  level: 0, 
+  score: 0, 
+  moves: 0, 
+  history: [], 
+  maxH: 4 
 };
 
-// ==================== GÖRSEL EFEKT FONKSİYONLARI ====================
+// ==========================================================================
+// 2. KUKLA & GÖRSEL EFEKT FONKSİYONLARI
+// ==========================================================================
 function speak(arr) {
-  document.getElementById('speech').textContent = arr[Math.floor(Math.random() * arr.length)];
+  const el = document.getElementById('speech');
+  el.textContent = arr[Math.floor(Math.random() * arr.length)];
 }
 
 function crowHappy() {
-  const crow = document.getElementById('crowSvg');
-  crow.classList.add('happy');
-  setTimeout(() => crow.classList.remove('happy'), 1500);
+  const c = document.getElementById('crowSvg');
+  c.classList.add('happy');
+  setTimeout(() => c.classList.remove('happy'), 1500);
 }
 
-// ==================== OYUN MANTIĞI VE KURULUMU ====================
+// ==========================================================================
+// 3. OYUN MANTIĞI VE KURULUMU
+// ==========================================================================
 function buildTubes(cfg) {
   const { tubes, colors, empty, maxHeight } = cfg;
   let layers = [];
@@ -91,9 +99,11 @@ function nextLevel() {
   newGame();
 }
 
-// ==================== HAMLE VE KONTROL MEKANİZMALARI ====================
-function topColor(tube) {
-  return tube.length > 0 ? tube[tube.length - 1] : -1;
+// ==========================================================================
+// 4. HAMLE VE KONTROL MEKANİZMALARI
+// ==========================================================================
+function topColor(tube) { 
+  return tube.length > 0 ? tube[tube.length - 1] : -1; 
 }
 
 function canPour(from, to) {
@@ -106,11 +116,14 @@ function canPour(from, to) {
 }
 
 function pour(from, to) {
+  // Geri alma geçmişi için mevcut durumu kaydet
   state.history.push({ tubes: state.tubes.map(t => [...t]), selected: state.selected });
+  
   const color = topColor(state.tubes[from]);
   while (state.tubes[from].length > 0 && topColor(state.tubes[from]) === color && state.tubes[to].length < state.maxH) {
     state.tubes[to].push(state.tubes[from].pop());
   }
+  
   state.moves++;
   speak(SPEECHES.pour);
   checkComplete(to);
@@ -118,50 +131,46 @@ function pour(from, to) {
 
 function selectTube(idx) {
   const els = document.querySelectorAll('.tube-outer');
-  const currentTube = state.tubes[idx];
-  const currentEl = els[idx];
+  const currentTubeEl = els[idx];
 
   if (state.selected === -1) {
-    // İlk seçim
-    if (currentTube.length === 0) {
-      // Boş tüpe dokunulursa sallansın
-      addShakeEffect(currentEl);
+    if (state.tubes[idx].length === 0) {
+      // Boş tüpe dokunulursa hafifçe sallansın
+      currentTubeEl.classList.add('shake');
+      setTimeout(() => currentTubeEl.classList.remove('shake'), 400);
       return;
     }
-    state.selected = idx;
+    state.selected = idx; 
     speak(SPEECHES.select);
   } else {
-    const sourceTube = state.tubes[state.selected];
-    const sourceEl = els[state.selected];
-
-    if (state.selected === idx) {
-      // Aynı tüp tekrar seçilirse seçimi iptal et
-      state.selected = -1;
-    } else if (canPour(state.selected, idx)) {
-      // Geçerli hamle
-      pour(state.selected, idx);
-      state.selected = -1;
+    if (state.selected === idx) { 
+      state.selected = -1; 
+    } else if (canPour(state.selected, idx)) { 
+      pour(state.selected, idx); 
+      state.selected = -1; 
     } else {
-      // Geçersiz hamle - her iki tüpü sallatıyoruz
+      // Hatalı hamle! Seçili olan tüpü ve hedef tüpü sallatıyoruz
       speak(SPEECHES.fail);
-      addShakeEffect(sourceEl);
-      addShakeEffect(currentEl);
       
-      // Boş tüpü seçtiğinde seçimi iptal et, aksi halde tüpü seç
-      state.selected = currentTube.length > 0 ? idx : -1;
+      const prevTubeEl = els[state.selected];
+      if (prevTubeEl) prevTubeEl.classList.add('shake');
+      currentTubeEl.classList.add('shake');
+      
+      // Animasyon bitince sınıfları temizle
+      setTimeout(() => {
+        if (prevTubeEl) prevTubeEl.classList.remove('shake');
+        currentTubeEl.classList.remove('shake');
+      }, 400);
+
+      state.selected = (state.tubes[idx].length > 0) ? idx : -1;
     }
   }
   render();
 }
 
-function addShakeEffect(element) {
-  element.classList.remove('shake'); // Animasyonu sıfırla
-  void element.offsetWidth; // Reflow trigger (animasyonun yeniden oynatılması için)
-  element.classList.add('shake');
-  setTimeout(() => element.classList.remove('shake'), 500);
-}
-
-// ==================== OYUN SONU VE YARDIMCILAR ====================
+// ==========================================================================
+// 5. OYUN SONU VE YARDIMCILAR (GERİ AL / İPUCU)
+// ==========================================================================
 function checkComplete(ti) {
   const t = state.tubes[ti];
   if (t.length === state.maxH && t.every(c => c === t[0])) {
@@ -222,37 +231,55 @@ function updateScoreUI() {
   document.getElementById('movesText').textContent = `Hamle: ${state.moves}`;
 }
 
-// ==================== ARAYÜZÜN ÇİZİLMESİ ====================
+// ==========================================================================
+// 6. ARAYÜZÜN ÇİZİLMESİ (DOM RENDER)
+// ==========================================================================
 function render() {
   const area = document.getElementById('gameArea');
   area.innerHTML = '';
   const segH = 180 / state.maxH;
+  
   state.tubes.forEach((tube, i) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'tube-wrapper';
     wrapper.onclick = () => selectTube(i);
+    
     const cap = document.createElement('div');
     cap.className = 'tube-cap';
     wrapper.appendChild(cap);
+    
     const outer = document.createElement('div');
     outer.className = 'tube-outer';
     if (state.selected === i) outer.classList.add('selected');
+    
     for (let l = 0; l < tube.length; l++) {
       const col = COLORS[tube[l]];
       const seg = document.createElement('div');
-      seg.style.cssText = `position:absolute;bottom:${l*segH}px;left:0;right:0;height:${segH}px;background:linear-gradient(to top,${col.hex},${col.light});border-radius:${l===0?'0 0 23px 23px':'0'}`;
+      seg.style.cssText = `
+        position: absolute;
+        bottom: ${l * segH}px;
+        left: 0; right: 0;
+        height: ${segH}px;
+        background: linear-gradient(to top, ${col.hex}, ${col.light});
+        border-radius: ${l === 0 ? '0 0 23px 23px' : '0'};
+      `;
       outer.appendChild(seg);
     }
+    
     const label = document.createElement('div');
     label.className = 'tube-label';
     if (tube.length === state.maxH && tube.every(c => c === tube[0])) {
       label.textContent = '✓ ' + COLORS[tube[0]].name;
       label.style.color = COLORS[tube[0]].light;
     }
+    
     wrapper.appendChild(outer);
     wrapper.appendChild(label);
     area.appendChild(wrapper);
   });
 }
 
-window.addEventListener('load', newGame);
+// Oyunu Başlat
+window.addEventListener('load', () => {
+  newGame();
+});
