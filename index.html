@@ -1,630 +1,76 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
- <link rel="stylesheet" href="style.css">
- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1026492731881827"
-     crossorigin="anonymous"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Karga İçecek Doldurma Oyunu</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    min-height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-    color: #fff;
-    overflow-x: hidden;
-    padding-bottom: 60px; /* banner için boşluk */
-  }
-  h1 {
-    text-align: center;
-    font-size: 24px;
-    padding: 12px;
-    color: #ffd700;
-    text-shadow: 0 0 20px rgba(255,215,0,0.5);
-    letter-spacing: 2px;
-  }
-  .level-indicator {
-    text-align: center;
-    font-size: 13px;
-    color: #87ceeb;
-    margin-bottom: 4px;
-  }
-  .game-area {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 14px;
-    padding: 10px 12px 0;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  .tube-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .tube-label {
-    font-size: 11px;
-    color: #ccc;
-    text-align: center;
-    height: 14px;
-  }
-  .tube-outer {
-    width: 48px;
-    height: 180px;
-    border: 3px solid rgba(255,255,255,0.25);
-    border-top: none;
-    border-radius: 0 0 26px 26px;
-    background: rgba(255,255,255,0.05);
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s, transform 0.15s;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  }
-  .tube-outer:hover { border-color: rgba(255,255,255,0.55); transform: translateY(-4px); }
-  .tube-outer.selected {
-    border-color: #ffd700;
-    transform: translateY(-10px);
-    box-shadow: 0 0 20px rgba(255,215,0,0.4);
-  }
-  .tube-cap {
-    width: 54px;
-    height: 9px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 6px 6px 0 0;
-    border: 2px solid rgba(255,255,255,0.25);
-    border-bottom: none;
-  }
-  .crow-container {
-    text-align: center;
-    position: relative;
-    height: 72px;
-    width: 200px;
-    margin: 6px auto 4px;
-  }
-  .crow-svg { transition: transform 0.3s; }
-  .crow-svg.happy { animation: crowBob 0.5s ease infinite alternate; }
-  @keyframes crowBob { from { transform: translateY(0); } to { transform: translateY(-6px); } }
-  .speech-bubble {
-    position: absolute;
-    top: 0; right: 0;
-    background: rgba(255,255,255,0.12);
-    border: 1.5px solid rgba(255,255,255,0.3);
-    border-radius: 14px;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: #fff;
-    white-space: nowrap;
-    backdrop-filter: blur(4px);
-  }
-  .controls {
-    text-align: center;
-    margin: 8px 0 4px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .btn {
-    background: rgba(255,255,255,0.1);
-    border: 1.5px solid rgba(255,255,255,0.3);
-    color: #fff;
-    padding: 7px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s;
-  }
-  .btn:hover { background: rgba(255,255,255,0.2); }
-  .btn.primary { background: rgba(255,215,0,0.2); border-color: #ffd700; color: #ffd700; }
-  .score-bar {
-    text-align: center;
-    font-size: 13px;
-    color: #ffd700;
-    margin-bottom: 4px;
-  }
-  .moves-left { color: #87ceeb; }
-
-  /* BANNER REKLAM - alt sabit */
-  .banner-ad {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 50px;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-  }
-
-  /* INTERSTİTİAL OVERLAY */
-  .interstitial-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  .interstitial-overlay.show { display: flex; }
-  .interstitial-box {
-    background: #1a1a2e;
-    border: 2px solid #ffd700;
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    max-width: 340px;
-    width: 90%;
-  }
-  .interstitial-ad-area {
-    width: 300px;
-    height: 250px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    margin: 12px auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #888;
-  }
-  .skip-btn {
-    margin-top: 10px;
-    background: rgba(255,215,0,0.15);
-    border: 1.5px solid #ffd700;
-    color: #ffd700;
-    padding: 8px 24px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-  }
-  .countdown { font-size: 12px; color: #aaa; margin-top: 6px; }
-
-  /* WIN/LOSE */
-  .win-overlay, .lose-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  .win-overlay.show, .lose-overlay.show { display: flex; }
-  .overlay-box {
-    background: #1a1a2e;
-    border: 2px solid #ffd700;
-    border-radius: 20px;
-    padding: 28px 40px;
-    text-align: center;
-    box-shadow: 0 0 40px rgba(255,215,0,0.3);
-  }
-  .overlay-box h2 { font-size: 28px; color: #ffd700; margin-bottom: 8px; }
-  .overlay-box p { color: #ccc; margin-bottom: 16px; font-size: 14px; }
-  .stars { font-size: 32px; letter-spacing: 6px; margin-bottom: 6px; }
-  .hint-glow { box-shadow: 0 0 12px rgba(255,215,0,0.6); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Karga İçecek Doldurma Oyunu</title>
+    <!-- Harici CSS Dosyası -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>🦅 Karga İçecek Oyunu</h1>
-<div class="level-indicator" id="levelText">Bölüm 1</div>
+    <h1>🦅 Karga İçecek Oyunu</h1>
+    <div class="level-indicator" id="levelText">Bölüm 1</div>
 
-<div class="crow-container">
-  <div class="speech-bubble" id="speech">Tüpleri doldur!</div>
-  <svg class="crow-svg" id="crowSvg" width="78" height="68" viewBox="0 0 80 70">
-    <ellipse cx="40" cy="48" rx="22" ry="16" fill="#1a1a1a"/>
-    <ellipse cx="36" cy="52" rx="16" ry="9" fill="#111" transform="rotate(-10 36 52)"/>
-    <ellipse cx="45" cy="50" rx="14" ry="7" fill="#222" transform="rotate(8 45 50)"/>
-    <ellipse cx="52" cy="30" rx="14" ry="13" fill="#1a1a1a"/>
-    <circle cx="57" cy="27" r="4" fill="#fff"/>
-    <circle cx="58" cy="27" r="2.5" fill="#333"/>
-    <circle cx="59" cy="26" r="1" fill="#111"/>
-    <circle cx="59.5" cy="26" r="0.5" fill="#fff"/>
-    <path d="M64 30 L74 28 L66 34 Z" fill="#e8a020"/>
-    <line x1="33" y1="64" x2="28" y2="70" stroke="#555" stroke-width="2"/>
-    <line x1="33" y1="64" x2="33" y2="70" stroke="#555" stroke-width="2"/>
-    <line x1="33" y1="64" x2="38" y2="70" stroke="#555" stroke-width="2"/>
-    <line x1="45" y1="64" x2="40" y2="70" stroke="#555" stroke-width="2"/>
-    <line x1="45" y1="64" x2="45" y2="70" stroke="#555" stroke-width="2"/>
-    <line x1="45" y1="64" x2="50" y2="70" stroke="#555" stroke-width="2"/>
-    <line x1="33" y1="63" x2="45" y2="63" stroke="#333" stroke-width="3"/>
-  </svg>
-</div>
-
-<div class="score-bar">
-  <span id="scoreText">Skor: 0</span> &nbsp;|&nbsp;
-  <span class="moves-left" id="movesText">Hamle: 0</span>
-</div>
-
-<div class="controls">
-  <button class="btn" onclick="undoMove()">↩ Geri Al</button>
-  <button class="btn primary" onclick="newGame()">🔄 Yeni Oyun</button>
-  <button class="btn" onclick="showHint()">💡 İpucu</button>
-</div>
-
-<div class="game-area" id="gameArea"></div>
-
-<!-- WIN -->
-<div class="win-overlay" id="winOverlay">
-  <div class="overlay-box">
-    <div class="stars" id="winStars">⭐⭐⭐</div>
-    <h2>Tebrikler! 🦅</h2>
-    <p id="winMsg">Karga çok mutlu!</p>
-    <button class="btn primary" onclick="nextLevel()">Sonraki Bölüm ➜</button>
-  </div>
-</div>
-
-<!-- LOSE -->
-<div class="lose-overlay" id="loseOverlay">
-  <div class="overlay-box">
-    <h2 style="color:#e55;">Takıldın! 😅</h2>
-    <p>Tekrar dene!</p>
-    <button class="btn primary" onclick="newGame()">🔄 Tekrar Oyna</button>
-  </div>
-</div>
-
-<!-- INTERSTİTİAL REKLAM OVERLAY -->
-<div class="interstitial-overlay" id="interstitialOverlay">
-  <div class="interstitial-box">
-    <div style="font-size:13px; color:#aaa; margin-bottom:4px;">Reklam</div>
-    <div class="interstitial-ad-area" id="interstitialAdArea">
-      <!-- AdMob interstitial buraya yüklenecek -->
+    <!-- Karga Maskotu ve Konuşma Balonu -->
+    <div class="crow-container">
+        <div class="speech-bubble" id="speech">Tüpleri doldur!</div>
+        <svg class="crow-svg" id="crowSvg" width="78" height="68" viewBox="0 0 80 70">
+            <ellipse cx="40" cy="48" rx="22" ry="16" fill="#1a1a1a"/>
+            <ellipse cx="36" cy="52" rx="16" ry="9" fill="#111" transform="rotate(-10 36 52)"/>
+            <ellipse cx="45" cy="50" rx="14" ry="7" fill="#222" transform="rotate(8 45 50)"/>
+            <ellipse cx="52" cy="30" rx="14" ry="13" fill="#1a1a1a"/>
+            <circle cx="57" cy="27" r="4" fill="#fff"/>
+            <circle cx="58" cy="27" r="2.5" fill="#333"/>
+            <circle cx="59" cy="26" r="1" fill="#111"/>
+            <circle cx="59.5" cy="26" r="0.5" fill="#fff"/>
+            <path d="M64 30 L74 28 L66 34 Z" fill="#e8a020"/>
+            <line x1="33" y1="64" x2="28" y2="70" stroke="#555" stroke-width="2"/>
+            <line x1="33" y1="64" x2="33" y2="70" stroke="#555" stroke-width="2"/>
+            <line x1="33" y1="64" x2="38" y2="70" stroke="#555" stroke-width="2"/>
+            <line x1="45" y1="64" x2="40" y2="70" stroke="#555" stroke-width="2"/>
+            <line x1="45" y1="64" x2="45" y2="70" stroke="#555" stroke-width="2"/>
+            <line x1="45" y1="64" x2="50" y2="70" stroke="#555" stroke-width="2"/>
+            <line x1="33" y1="63" x2="45" y2="63" stroke="#333" stroke-width="3"/>
+        </svg>
     </div>
-    <button class="skip-btn" id="skipBtn" onclick="closeInterstitial()" disabled>Geç (5)</button>
-    <div class="countdown" id="countdownText">Lütfen bekleyin...</div>
-  </div>
-</div>
 
-<div class="banner-ad">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-1026492731881827"
-       data-ad-slot="4824884632"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-</div>
-
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-
-<script>
-// =============================================
-// ADMOB KONFİGÜRASYON
-// Uygulama ID: ca-app-pub-1026492731881827
-// Ad Unit ID:  ca-app-pub-1026492731881827/4824884632
-// =============================================
-
-const ADMOB_CONFIG = {
-  APP_ID:     'ca-app-pub-1026492731881827',
-  AD_UNIT_ID: 'ca-app-pub-1026492731881827/4824884632',
-  BANNER_ID:  'ca-app-pub-1026492731881827/4824884632',
-};
-
-// Capacitor / Cordova AdMob entegrasyonu
-// WebIntoApp veya Capacitor kullanırsan aşağıdaki fonksiyonlar otomatik çalışır.
-// Test için console'a log basar.
-
-function initAdMob() {
-  if (window.admob) {
-    // Cordova admob-plus-cordova plugin
-    admob.start();
-    initBanner();
-    console.log('[AdMob] Başlatıldı');
-  } else if (window.AdMob) {
-    // admob-cordova plugin
-    window.AdMob.setOptions({ publisherId: ADMOB_CONFIG.APP_ID });
-    initBanner();
-    console.log('[AdMob] (eski plugin) Başlatıldı');
-  } else {
-    // WebView'da test modu - simüle et
-    console.log('[AdMob] Plugin bulunamadı - test modu');
-    //showSimulatedBanner();
-  }
-}
-
-function initBanner() {
-  if (window.admob) {
-    const banner = new admob.BannerAd({ adUnitId: ADMOB_CONFIG.BANNER_ID, position: 'bottom' });
-    banner.show();
-  } else if (window.AdMob) {
-    AdMob.createBanner({
-      adId: ADMOB_CONFIG.BANNER_ID,
-      position: AdMob.AD_POSITION.BOTTOM_CENTER,
-      autoShow: true,
-    });
-  }
-}
-
-function showInterstitialAd(callback) {
-  if (window.admob) {
-    const interstitial = new admob.InterstitialAd({ adUnitId: ADMOB_CONFIG.AD_UNIT_ID });
-    interstitial.load().then(() => interstitial.show()).then(() => { if(callback) callback(); });
-  } else if (window.AdMob) {
-    AdMob.prepareInterstitial({ adId: ADMOB_CONFIG.AD_UNIT_ID, autoShow: false });
-    document.addEventListener('onAdLoaded', function handler(e) {
-      if (e.adType === AdMob.AD_TYPE.INTERSTITIAL) {
-        AdMob.showInterstitial();
-        document.removeEventListener('onAdLoaded', handler);
-        if (callback) callback();
-      }
-    });
-  } else {
-    // Simüle et - web/test modunda
-    showSimulatedInterstitial(callback);
-  }
-}
-
-// ---- Simülasyon (web test modu) ----
-function showSimulatedBanner() {
-  const banner = document.getElementById('bannerAd');
-  banner.innerHTML = `
-    <div style="
-      background:linear-gradient(90deg,#1a1a2e,#0f3460);
-      border-top:1px solid #ffd70044;
-      width:100%; height:50px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:11px; color:#ffd700; letter-spacing:1px;
-    ">📢 REKLAM ALANI — ca-app-pub-1026492731881827/4824884632</div>
-  `;
-}
-
-function (callback) {
-  const overlay = document.getElementById('interstitialOverlay');
-  const skipBtn = document.getElementById('skipBtn');
-  const countdownEl = document.getElementById('countdownText');
-  const adArea = document.getElementById('interstitialAdArea');
-
-  adArea.innerHTML = `
-    <div style="text-align:center;">
-      <div style="font-size:28px; margin-bottom:8px;">📢</div>
-      <div style="font-size:12px; color:#ffd700;">AdMob Interstitial</div>
-      <div style="font-size:10px; color:#666; margin-top:6px;">${ADMOB_CONFIG.AD_UNIT_ID}</div>
-      <div style="font-size:10px; color:#555; margin-top:4px;">Gerçek uygulamada reklam görünecek</div>
+    <!-- Skor ve Hamle Paneli -->
+    <div class="score-bar">
+        <span id="scoreText">Skor: 0</span> &nbsp;|&nbsp;
+        <span class="moves-left" id="movesText">Hamle: 0</span>
     </div>
-  `;
 
-  overlay.classList.add('show');
-  skipBtn.disabled = true;
-  let sec = 5;
-  skipBtn.textContent = `Geç (${sec})`;
-  countdownEl.textContent = 'Lütfen bekleyin...';
+    <!-- Kontrol Butonları -->
+    <div class="controls">
+        <button class="btn" onclick="undoMove()">↩ Geri Al</button>
+        <button class="btn primary" onclick="newGame()">🔄 Yeni Oyun</button>
+        <button class="btn" onclick="showHint()">💡 İpucu</button>
+    </div>
 
-  const timer = setInterval(() => {
-    sec--;
-    if (sec <= 0) {
-      clearInterval(timer);
-      skipBtn.disabled = false;
-      skipBtn.textContent = 'Geç ✕';
-      countdownEl.textContent = 'Reklam tamamlandı';
-      window._interstitialCallback = callback;
-    } else {
-      skipBtn.textContent = `Geç (${sec})`;
-    }
-  }, 1000);
-}
+    <!-- Dinamik Oyun Alanı (Tüpler buraya eklenecek) -->
+    <div class="game-area" id="gameArea"></div>
 
-function closeInterstitial() {
-  document.getElementById('interstitialOverlay').classList.remove('show');
-  if (window._interstitialCallback) {
-    window._interstitialCallback();
-    window._interstitialCallback = null;
-  }
-}
+    <!-- KAZANMA EKRANI (WIN OVERLAY) -->
+    <div class="win-overlay" id="winOverlay">
+        <div class="overlay-box">
+            <div class="stars" id="winStars">⭐⭐⭐</div>
+            <h2>Tebrikler! 🦅</h2>
+            <p id="winMsg">Karga çok mutlu!</p>
+            <button class="btn primary" onclick="nextLevel()">Sonraki Bölüm ➜</button>
+        </div>
+    </div>
 
-// =============================================
-// OYUN KODU
-// =============================================
+    <!-- KAYBETME EKRANI (LOSE OVERLAY) -->
+    <div class="lose-overlay" id="loseOverlay">
+        <div class="overlay-box">
+            <h2 style="color:#e55;">Takıldın! 😅</h2>
+            <p>Tekrar dene!</p>
+            <button class="btn primary" onclick="newGame()">🔄 Tekrar Oyna</button>
+        </div>
+    </div>
 
-const COLORS = [
-  { name: 'Kırmızı',  hex: '#e74c3c', light: '#ff6b6b' },
-  { name: 'Mavi',     hex: '#3498db', light: '#74b9ff' },
-  { name: 'Yeşil',    hex: '#27ae60', light: '#55efc4' },
-  { name: 'Turuncu',  hex: '#e67e22', light: '#fdcb6e' },
-  { name: 'Mor',      hex: '#9b59b6', light: '#a29bfe' },
-  { name: 'Pembe',    hex: '#e91e8c', light: '#fd79a8' },
-  { name: 'Cyan',     hex: '#00bcd4', light: '#81ecec' },
-  { name: 'Sarı',     hex: '#f1c40f', light: '#ffeaa7' },
-];
-
-const SPEECHES = {
-  select: ["Güzel seçim!", "Evet bu!", "Hmm...", "Bakalım..."],
-  pour:   ["Döküyorum!", "Mükemmel!", "Oldu bir!", "Süper!"],
-  match:  ["Harika! ✨", "Bravo!", "Tam isabet!"],
-  fail:   ["Oraya sığmaz!", "Yanlış renk!", "Olmaz!", "Dikkat!"],
-  hint:   ["İşte ipucu!", "Bak buraya!"],
-};
-
-const LEVEL_CONFIG = [
-  { tubes: 4, colors: 2, empty: 1, maxHeight: 4 },
-  { tubes: 5, colors: 3, empty: 1, maxHeight: 4 },
-  { tubes: 6, colors: 4, empty: 2, maxHeight: 4 },
-  { tubes: 7, colors: 5, empty: 2, maxHeight: 4 },
-  { tubes: 8, colors: 6, empty: 2, maxHeight: 4 },
-];
-
-let state = { tubes:[], selected:-1, level:0, score:0, moves:0, history:[], maxH:4, levelCount:0 };
-
-function speak(arr) {
-  const el = document.getElementById('speech');
-  el.textContent = arr[Math.floor(Math.random()*arr.length)];
-}
-
-function crowHappy() {
-  const c = document.getElementById('crowSvg');
-  c.classList.add('happy');
-  setTimeout(()=>c.classList.remove('happy'), 1500);
-}
-
-function buildTubes(cfg) {
-  const {tubes, colors, empty, maxHeight} = cfg;
-  let layers = [];
-  for (let c=0;c<colors;c++) for (let i=0;i<maxHeight;i++) layers.push(c);
-  for (let i=layers.length-1;i>0;i--) {
-    const j=Math.floor(Math.random()*(i+1));
-    [layers[i],layers[j]]=[layers[j],layers[i]];
-  }
-  let result=[];
-  for (let t=0;t<tubes-empty;t++) result.push(layers.splice(0,maxHeight));
-  for (let e=0;e<empty;e++) result.push([]);
-  return result;
-}
-
-function newGame() {
-  const cfg=LEVEL_CONFIG[Math.min(state.level,LEVEL_CONFIG.length-1)];
-  state.tubes=buildTubes(cfg);
-  state.selected=-1; state.moves=0; state.history=[];
-  state.maxH=cfg.maxHeight;
-  document.getElementById('winOverlay').classList.remove('show');
-  document.getElementById('loseOverlay').classList.remove('show');
-  document.getElementById('levelText').textContent=`Bölüm ${state.level+1}`;
-  speak(["Yeni oyun!", "Tüpleri doldur!", "Hadi!"]);
-  render();
-}
-
-function nextLevel() {
-  state.level++;
-  state.levelCount++;
-  // Her 3 bölümde bir interstitial göster
-  if (state.levelCount % 3 === 0) {
-    showInterstitialAd(()=>{ newGame(); });
-  } else {
-    newGame();
-  }
-}
-
-function topColor(tube) { return tube.length>0?tube[tube.length-1]:-1; }
-
-function canPour(from,to) {
-  if (from===to) return false;
-  if (state.tubes[from].length===0) return false;
-  if (state.tubes[to].length>=state.maxH) return false;
-  const tc=topColor(state.tubes[to]);
-  return tc===-1||tc===topColor(state.tubes[from]);
-}
-
-function pour(from,to) {
-  state.history.push({tubes:state.tubes.map(t=>[...t]),selected:state.selected});
-  const color=topColor(state.tubes[from]);
-  while(state.tubes[from].length>0&&topColor(state.tubes[from])===color&&state.tubes[to].length<state.maxH) {
-    state.tubes[to].push(state.tubes[from].pop());
-  }
-  state.moves++;
-  speak(SPEECHES.pour);
-  checkComplete(to);
-}
-
-function checkComplete(ti) {
-  const t=state.tubes[ti];
-  if (t.length===state.maxH&&t.every(c=>c===t[0])) {
-    state.score+=20; speak(SPEECHES.match); crowHappy();
-  }
-  updateScoreUI();
-  if (isWin()) setTimeout(showWin,500);
-}
-
-function isWin() {
-  return state.tubes.every(t=>t.length===0||(t.length===state.maxH&&t.every(c=>c===t[0])));
-}
-
-function showWin() {
-  const stars=state.moves<15?'⭐⭐⭐':state.moves<25?'⭐⭐':'⭐';
-  document.getElementById('winStars').textContent=stars;
-  document.getElementById('winMsg').textContent=`${state.moves} hamlede tamamladın! 🦅`;
-  document.getElementById('winOverlay').classList.add('show');
-  state.score+=100; updateScoreUI(); crowHappy();
-}
-
-function undoMove() {
-  if (state.history.length===0) return;
-  const prev=state.history.pop();
-  state.tubes=prev.tubes; state.selected=-1;
-  state.moves=Math.max(0,state.moves-1);
-  updateScoreUI(); render();
-}
-
-function showHint() {
-  speak(SPEECHES.hint);
-  const els=document.querySelectorAll('.tube-outer');
-  for (let f=0;f<state.tubes.length;f++) {
-    for (let t=0;t<state.tubes.length;t++) {
-      if (canPour(f,t)) {
-        els[f].classList.add('hint-glow');
-        els[t].classList.add('hint-glow');
-        setTimeout(()=>{els[f].classList.remove('hint-glow');els[t].classList.remove('hint-glow');},1500);
-        return;
-      }
-    }
-  }
-}
-
-function selectTube(idx) {
-  if (state.selected===-1) {
-    if (state.tubes[idx].length===0) return;
-    state.selected=idx; speak(SPEECHES.select);
-  } else {
-    if (state.selected===idx) { state.selected=-1; }
-    else if (canPour(state.selected,idx)) { pour(state.selected,idx); state.selected=-1; }
-    else {
-      speak(SPEECHES.fail);
-      state.selected=(state.tubes[idx].length>0)?idx:-1;
-    }
-  }
-  render();
-}
-
-function updateScoreUI() {
-  document.getElementById('scoreText').textContent=`Skor: ${state.score}`;
-  document.getElementById('movesText').textContent=`Hamle: ${state.moves}`;
-}
-
-function render() {
-  const area=document.getElementById('gameArea');
-  area.innerHTML='';
-  const segH=180/state.maxH;
-  state.tubes.forEach((tube,i)=>{
-    const wrapper=document.createElement('div');
-    wrapper.className='tube-wrapper';
-    wrapper.onclick=()=>selectTube(i);
-    const cap=document.createElement('div');
-    cap.className='tube-cap';
-    wrapper.appendChild(cap);
-    const outer=document.createElement('div');
-    outer.className='tube-outer';
-    if (state.selected===i) outer.classList.add('selected');
-    for (let l=0;l<tube.length;l++) {
-      const col=COLORS[tube[l]];
-      const seg=document.createElement('div');
-      seg.style.cssText=`position:absolute;bottom:${l*segH}px;left:0;right:0;height:${segH}px;background:linear-gradient(to top,${col.hex},${col.light});border-radius:${l===0?'0 0 23px 23px':'0'};`;
-      outer.appendChild(seg);
-    }
-    const label=document.createElement('div');
-    label.className='tube-label';
-    if (tube.length===state.maxH&&tube.every(c=>c===tube[0])) {
-      label.textContent='✓ '+COLORS[tube[0]].name;
-      label.style.color=COLORS[tube[0]].light;
-    }
-    wrapper.appendChild(outer);
-    wrapper.appendChild(label);
-    area.appendChild(wrapper);
-  });
-}
-
-// Başlat
-window.addEventListener('load', ()=>{
-  initAdMob();
-  newGame();
-});
-</script>
+    <!-- Harici JavaScript Dosyası -->
+    <script src="script.js"></script>
 </body>
 </html>
